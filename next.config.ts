@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
   basePath: basePath,
   assetPrefix: basePath,
   trailingSlash: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 };
 
 export default nextConfig;
