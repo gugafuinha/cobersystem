@@ -30,45 +30,36 @@ jobs:
       
       - name: Install dependencies
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-          echo "Dependencies installed successfully"
-          npm list --depth=0
+          echo "Installing dependencies..."
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+          echo "✓ Dependencies installed"
       
       - name: Build
         run: |
-          echo "Starting build with NODE_ENV=$NODE_ENV"
-          echo "NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH"
-          npm run build 2>&1 | tee build.log
-          echo "Build completed with exit code: $?"
+          echo "Building Next.js app..."
+          echo "NODE_ENV: $NODE_ENV"
+          echo "NEXT_PUBLIC_BASE_PATH: $NEXT_PUBLIC_BASE_PATH"
+          npm run build
         env:
           NODE_ENV: production
           NEXT_PUBLIC_BASE_PATH: /cobersystem
-          CI: false
-        continue-on-error: false
-      
-      - name: Show build log on failure
-        if: failure()
-        run: |
-          echo "Build failed. Showing build log:"
-          cat build.log || echo "No build log found"
       
       - name: Verify build output
         run: |
           if [ ! -d "out" ]; then
-            echo "Error: out directory not found"
+            echo "❌ Error: out directory not found"
+            echo "Contents of current directory:"
+            ls -la
             exit 1
           fi
-          echo "Build output verified"
-          ls -la out/
+          echo "✓ Build output verified"
+          echo "Contents of out directory:"
+          ls -la out/ | head -20
       
       - name: Create .nojekyll file
         run: |
           touch out/.nojekyll
-          echo ".nojekyll file created"
+          echo "✓ .nojekyll file created"
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
