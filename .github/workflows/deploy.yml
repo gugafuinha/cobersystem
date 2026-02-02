@@ -35,14 +35,26 @@ jobs:
           else
             npm install
           fi
+          echo "Dependencies installed successfully"
+          npm list --depth=0
       
       - name: Build
-        run: npm run build
+        run: |
+          echo "Starting build with NODE_ENV=$NODE_ENV"
+          echo "NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH"
+          npm run build 2>&1 | tee build.log
+          echo "Build completed with exit code: $?"
         env:
           NODE_ENV: production
           NEXT_PUBLIC_BASE_PATH: /cobersystem
           CI: false
         continue-on-error: false
+      
+      - name: Show build log on failure
+        if: failure()
+        run: |
+          echo "Build failed. Showing build log:"
+          cat build.log || echo "No build log found"
       
       - name: Verify build output
         run: |
